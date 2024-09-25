@@ -1,8 +1,8 @@
 /*
  * etx_ota_update.c
  *
- *  Created on: 26-Jul-2021
- *      Author: EmbeTronicX
+ *  Created on: Sep 11, 2024
+ *      Author: abrahamayorinde
  */
 
 #include <stdio.h>
@@ -11,30 +11,37 @@
 #include <string.h>
 #include <stdbool.h>
 
+//#define SYSTICK_LOAD (SystemCoreClock/1000000U)
+//#define SYSTICK_DELAY_CALIB (SYSTICK_LOAD >> 1)
+
+
+
 /* Buffer to hold the received data */
-static uint8_t Rx_Buffer[ ETX_OTA_PACKET_MAX_SIZE ];
+//static uint8_t Rx_Buffer[ ETX_OTA_PACKET_MAX_SIZE ];
 
 /* OTA State */
-static ETX_OTA_STATE_ ota_state = ETX_OTA_STATE_IDLE;
+//static ETX_OTA_STATE_ ota_state = ETX_OTA_STATE_IDLE;
 
 /* Firmware Total Size that we are going to receive */
-static uint32_t ota_fw_total_size;
+//static uint32_t ota_fw_total_size;
 /* Firmware image's CRC32 */
-static uint32_t ota_fw_crc;
+//static uint32_t ota_fw_crc;
 /* Firmware Size that we have received */
 static uint32_t ota_fw_received_size;
 
-static uint16_t etx_receive_chunk( uint8_t *buf, uint16_t max_len );
-static ETX_OTA_EX_ etx_process_data( uint8_t *buf, uint16_t len );
-static void etx_ota_send_resp( uint8_t type );
-static HAL_StatusTypeDef write_data_to_flash_app( uint8_t *data,
-                                        uint16_t data_len, bool is_full_image );
+//static uint16_t etx_receive_chunk( uint8_t *buf, uint16_t max_len );
+//static ETX_OTA_EX_ etx_process_data( uint8_t *buf, uint16_t len );
+/*static*/ //void etx_ota_send_resp( uint8_t type );
+/*static *///HAL_StatusTypeDef write_data_to_flash_app( uint8_t *data, uint16_t data_len, bool is_full_image );
 
+extern UART_HandleTypeDef huart2;
+//UART_HandleTypeDef huart3;
 /**
   * @brief Download the application from UART and flash it.
   * @param None
   * @retval ETX_OTA_EX_
   */
+/*
 ETX_OTA_EX_ etx_ota_download_and_flash( void )
 {
   ETX_OTA_EX_ ret  = ETX_OTA_EX_OK;
@@ -42,7 +49,7 @@ ETX_OTA_EX_ etx_ota_download_and_flash( void )
 
   printf("Waiting for the OTA data...\r\n");
 
-  /* Reset the variables */
+  // Reset the variables //
   ota_fw_total_size    = 0u;
   ota_fw_received_size = 0u;
   ota_fw_crc           = 0u;
@@ -82,16 +89,19 @@ ETX_OTA_EX_ etx_ota_download_and_flash( void )
 
   return ret;
 }
-
+*/
 /**
   * @brief Process the received data from UART4.
   * @param buf buffer to store the received data
   * @param max_len maximum length to receive
   * @retval ETX_OTA_EX_
   */
+/*
 static ETX_OTA_EX_ etx_process_data( uint8_t *buf, uint16_t len )
 {
   ETX_OTA_EX_ ret = ETX_OTA_EX_ERR;
+
+  printf("Start processing data...\r\n");
 
   do
   {
@@ -158,7 +168,7 @@ static ETX_OTA_EX_ etx_process_data( uint8_t *buf, uint16_t len )
 
         if( data->packet_type == ETX_OTA_PACKET_TYPE_DATA )
         {
-          /* write the chunk to the Flash (App location) */
+          // write the chunk to the Flash (App location) //
           ex = write_data_to_flash_app( buf+4, data_len, ( ota_fw_received_size == 0) );
 
           if( ex == HAL_OK )
@@ -197,7 +207,7 @@ static ETX_OTA_EX_ etx_process_data( uint8_t *buf, uint16_t len )
 
       default:
       {
-        /* Should not come here */
+        // Should not come here //
         ret = ETX_OTA_EX_ERR;
       }
       break;
@@ -206,18 +216,19 @@ static ETX_OTA_EX_ etx_process_data( uint8_t *buf, uint16_t len )
 
   return ret;
 }
-
+*/
 /**
   * @brief Receive a one chunk of data.
   * @param buf buffer to store the received data
   * @param max_len maximum length to receive
   * @retval ETX_OTA_EX_
   */
-static uint16_t etx_receive_chunk( uint8_t *buf, uint16_t max_len )
+/*static uint16_t etx_receive_chunk( uint8_t *buf, uint16_t max_len )
 {
   int16_t  ret;
   uint16_t index     = 0u;
   uint16_t data_len;
+  printf("Start receiving chunks...\r\n");
 
   do
   {
@@ -301,13 +312,14 @@ static uint16_t etx_receive_chunk( uint8_t *buf, uint16_t max_len )
 
   return index;
 }
-
+*/
 /**
   * @brief Send the response.
   * @param type ACK or NACK
   * @retval none
   */
-static void etx_ota_send_resp( uint8_t type )
+/*static*/
+void etx_ota_send_resp( uint8_t type )
 {
   ETX_OTA_RESP_ rsp =
   {
@@ -319,6 +331,7 @@ static void etx_ota_send_resp( uint8_t type )
     .eof         = ETX_OTA_EOF
   };
 
+  //DELAY_MS(5);
   //send response
   HAL_UART_Transmit(&huart2, (uint8_t *)&rsp, sizeof(ETX_OTA_RESP_), HAL_MAX_DELAY);
 }
@@ -330,56 +343,63 @@ static void etx_ota_send_resp( uint8_t type )
   * @is_first_block true - if this is first block, false - not first block
   * @retval HAL_StatusTypeDef
   */
-static HAL_StatusTypeDef write_data_to_flash_app( uint8_t *data,
+/*static*/ HAL_StatusTypeDef write_data_to_flash_app( uint8_t *data,
                                         uint16_t data_len, bool is_first_block )
 {
-  HAL_StatusTypeDef ret;
+  HAL_StatusTypeDef ret = HAL_ERROR;
 
   do
   {
-    ret = HAL_FLASH_Unlock();
+	ret = HAL_FLASH_Unlock();
+
+
     if( ret != HAL_OK )
     {
       break;
     }
 
+	__HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_WRPERR);
     //No need to erase every time. Erase only the first time.
+
     if( is_first_block )
     {
+    	printf("Erasing the Flash memory...\r\n");
 
-      printf("Erasing the Flash memory...\r\n");
-      //Erase the Flash
-      FLASH_EraseInitTypeDef EraseInitStruct;
-      uint32_t SectorError;
+    	FLASH_Erase_Sector( FLASH_SECTOR_2, FLASH_BANK_1, FLASH_VOLTAGE_RANGE_3);
 
-      EraseInitStruct.TypeErase     = FLASH_TYPEERASE_SECTORS;
-      EraseInitStruct.Sector        = FLASH_SECTOR_5;
-      EraseInitStruct.NbSectors     = 2;                    //erase 2 sectors(5,6)
-      EraseInitStruct.VoltageRange  = FLASH_VOLTAGE_RANGE_3;
-
-      ret = HAL_FLASHEx_Erase( &EraseInitStruct, &SectorError );
-      if( ret != HAL_OK )
-      {
-        break;
-      }
+    	FLASH_WaitForLastOperation( HAL_MAX_DELAY, FLASH_BANK_1 );
+    	//Erase the Flash
+    	/*
+    	FLASH_EraseInitTypeDef EraseInitStruct;
+    	uint32_t SectorError;
+    	EraseInitStruct.TypeErase     = FLASH_TYPEERASE_SECTORS;
+    	EraseInitStruct.Sector        = FLASH_SECTOR_2;
+    	EraseInitStruct.NbSectors     = 1;                    //erase 2 sectors(2,3)
+    	EraseInitStruct.VoltageRange  = FLASH_VOLTAGE_RANGE_3;
+    	ret = HAL_FLASHEx_Erase( &EraseInitStruct, &SectorError );
+    	*/
     }
 
-    for(int i = 0; i < data_len; i++ )
+    for(int i = 0; i < data_len;)
     {
-      ret = HAL_FLASH_Program( FLASH_TYPEPROGRAM_BYTE,
-                               (ETX_APP_FLASH_ADDR + ota_fw_received_size),
-                               data[i]
-                             );
-      if( ret == HAL_OK )
-      {
-        //update the data count
-        ota_fw_received_size += 1;
-      }
-      else
-      {
-        printf("Flash Write Error\r\n");
-        break;
-      }
+
+    	ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD,
+                               (uint32_t)(ETX_APP_FLASH_ADDR + ota_fw_received_size),
+                               (uint32_t)&data[i]);
+
+    	FLASH_WaitForLastOperation( HAL_MAX_DELAY, FLASH_BANK_1 );
+
+    	if( ret == HAL_OK )
+    	{
+    		//update the data count
+    		ota_fw_received_size += 32;
+    	}
+    	else
+    	{
+    		printf("Flash Write Error\r\n");
+    		break;
+    	}
+    	i+=32;
     }
 
     if( ret != HAL_OK )
@@ -388,11 +408,18 @@ static HAL_StatusTypeDef write_data_to_flash_app( uint8_t *data,
     }
 
     ret = HAL_FLASH_Lock();
-    if( ret != HAL_OK )
-    {
-      break;
-    }
+
   }while( false );
 
   return ret;
+}
+
+bool has_download_begun()
+{
+	if(ota_fw_received_size == 0)
+	{
+		return true;
+	}
+
+	return false;
 }
