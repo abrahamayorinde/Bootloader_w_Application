@@ -1,5 +1,5 @@
-# Bootloader_w_Application
-A bootloader application that allows the application (also an application) to be updated via UART.
+# Bootloader
+A UART bootloader.
 
 The linker file is modified to accomodate the two binaries, the bootloader binary and the application binary.  The bootloader is allotted 0x40000 bytes and the  application and the remaining is left for the application.
 
