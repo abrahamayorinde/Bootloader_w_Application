@@ -10,15 +10,16 @@ The bootloader's other responsibility is to update the application.
 
 The implications are that the bootloader has to have input/output (IO) capabililties, particularly the ability to communicate in order to receive the data that will be the updated application.  This also implies that the bootloader must be able to write to memory.  
 
-In order to satisfy the communication requirement, this bootloader will use the USART2 communcation peripheral as the communication channel.  The STM32CubeMX configuration software is used to configure the peripheral, and it also provides us with some Hardware Abstraction Layer (HAL) functions to interact with it.  We are also provided with some HAL functions to be able to read and write to/from the flash memory.
+In order to satisfy the communication requirement, the bootloader will use the USART2 communcation peripheral as the communication channel.  The STM32CubeMX configuration software is used to configure the peripheral, and it also provides some Hardware Abstraction Layer (HAL) functions to interact with it.  The configuration software also provides some HAL functions to be able to read and write to/from the flash memory.
 
-The UART channel is configured in interrupt mode.   More specifically, the CPU will be interrupted once the UART has received a specific number of bytes.  It is up to the user to specify the number of bytes that should be received.  Furthermore the interrupt is cleared after it is raised and it is up to the user to again specify how many bytes of data should be received before the next interrupt.
+The UART2 channel is configured in interrupt mode.  To provide more detail, the CPU will be interrupted once the UART has received a specific number of bytes.  It is up to the user to specify the number of bytes that should be received. The HAL function to enable the interrupt follows HAL_UART_Receive_IT(&uart_channel, receive_buffer, bytes_to_trigger_interrupt).  The function requires a pointer to the UART channel handler, along with the receive buffer as the second parameter, and the specific number of bytes as the last parameter.  
 
-There has to be a protocol to communicate between the target (STM32H7) and the server/host which is a personal computer in this case.  Provided that the target is in the mode 
+Once the interrupt executes the interrupt handler callback is called.  This is where the received data will be examined to determine whether another message should be expected, another interrupt will be declared.  
 
-Considering that the protocol uses a standard header frame, it is straighforward to specify the initial MCU when the appropriate number of bytes has been received.  The interrupt routine examines the byte data to determine whether or not this is an upload along the expected number of bytes prior to the download.  
+As can be seen below, communication begins with a starting frame and is followed by a header frame.  The header frame contains the total data payload of the complete transmission for all of the following data frames.  That information makes it straightforward to determine how many bytes the target should expect for the subsequent interrupts.  Knowing the total data payload, as well as the size of the buffer, the target can count up to the total data payload, receiving up to 1024 bytes per message. 
 
 The CRC field of all frames is currently always 0x00000000.
+
 Start/Initial Frame
 | Start of Frame (SOF) | Packet Type | Data Length | Command | CRC | End of Frame (EOF)
 | -------- | ------- |------- |------- |------- |------- |
