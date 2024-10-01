@@ -34,9 +34,9 @@ Header Frame
 | 0xAA | 0x02 | 0x0010 | 0x?? 0x?? 0x?? 0x??| 0x00 | 0xBB|
 
 The 'Meta Data' field is made up of four parts: 
-The Package size field (4 bytes, The full size of the application to be upload. A maximum of 4294967296 bytes)
-Package CRC (4 bytes, currently always 0x00000000)
-Reserved1 (4 bytes, unused)
+The Package size field (4 bytes, The full size of the application to be upload. A maximum of 4294967296 bytes),
+Package CRC (4 bytes, currently always 0x00000000),
+Reserved1 (4 bytes, unused),
 Reserved2 (4 bytes, unused)
 
 Data Frame
