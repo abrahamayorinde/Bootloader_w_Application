@@ -1,3 +1,5 @@
+For the updated project repo go here: https://github.com/abrahamayorinde/H723ZGT6_Bootloader
+
 # Bootloader
 A UART bootloader.
 
