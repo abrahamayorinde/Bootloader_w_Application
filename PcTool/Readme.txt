@@ -7,7 +7,7 @@ Run the below command to compile the application.
 
 Once you have build the application, then run the application like below.
 
-		.\etx_ota_app.exe COMPORT_NUM APPLICATION_BIN_PATH
+		./etx_ota_app COMPORT_NAME APPLICATION_BIN_PATH
 		
 		example:
-			.\etx_ota_app.exe 8 ..\..\Application\Debug\Blinky.bin
+			./etx_ota_app /dev/cu.portName ..\..\Application\Debug\Blinky.bin
