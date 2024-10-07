@@ -10,4 +10,4 @@ Once you have build the application, then run the application like below.
 		./etx_ota_app COMPORT_NAME APPLICATION_BIN_PATH
 		
 		example:
-			./etx_ota_app /dev/cu.portName ..\..\Application\Debug\Blinky.bin
+			./etx_ota_app /dev/cu.portName ../../Application/Debug/Blinky.bin
